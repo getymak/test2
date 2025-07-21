@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录 - 风险评估系统</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .login-header {
+            margin-bottom: 30px;
+        }
+
+        .login-icon {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 16px;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .register-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .register-link:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            margin: 20px 0;
+            position: relative;
+            text-align: center;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 16px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .guest-button {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .guest-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            z-index: 10000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        .toast.success {
+            background-color: #10b981;
+        }
+
+        .toast.warning {
+            background-color: #f59e0b;
+        }
+
+        .toast.error {
+            background-color: #ef4444;
+        }
+
+        .toast.info {
+            background-color: #3b82f6;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .login-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <i class="fas fa-user-shield login-icon"></i>
+            <h1 class="login-title">用户登录</h1>
+            <p class="login-subtitle">请登录后开始风险评估</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="email">邮箱地址</label>
+                <input type="email" id="email" class="form-input" placeholder="请输入邮箱地址" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">密码</label>
+                <input type="password" id="password" class="form-input" placeholder="请输入密码" required>
+            </div>
+
+            <button type="submit" class="login-button" id="loginBtn">
+                <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
+                登录
+            </button>
+        </form>
+
+        <p style="color: #666; font-size: 14px; margin-bottom: 16px;">
+            还没有账号？ <a href="#" class="register-link" onclick="showRegisterForm()">立即注册</a>
+        </p>
+
+        <div class="divider">
+            <span>或</span>
+        </div>
+
+        <button class="guest-button" onclick="guestLogin()">
+            <i class="fas fa-user" style="margin-right: 8px;"></i>
+            游客体验
+        </button>
+    </div>
+
+    <!-- 注册表单模态框 -->
+    <div id="registerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: white; border-radius: 20px; padding: 30px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <i class="fas fa-user-plus" style="font-size: 36px; color: #667eea; margin-bottom: 12px;"></i>
+                <h2 style="margin: 0; color: #333;">用户注册</h2>
+            </div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label class="form-label" for="regName">姓名</label>
+                    <input type="text" id="regName" class="form-input" placeholder="请输入姓名" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regPhone">手机号</label>
+                    <input type="tel" id="regPhone" class="form-input" placeholder="请输入手机号" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regEmail">邮箱地址</label>
+                    <input type="email" id="regEmail" class="form-input" placeholder="请输入邮箱地址" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regPassword">密码</label>
+                    <input type="password" id="regPassword" class="form-input" placeholder="请输入密码（至少6位）" required minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regConfirmPassword">确认密码</label>
+                    <input type="password" id="regConfirmPassword" class="form-input" placeholder="请再次输入密码" required>
+                </div>
+
+                <button type="submit" class="login-button" style="margin-bottom: 12px;">
+                    <i class="fas fa-user-plus" style="margin-right: 8px;"></i>
+                    注册
+                </button>
+
+                <button type="button" class="guest-button" onclick="hideRegisterForm()">
+                    取消
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 显示提示信息
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // 验证邮箱格式
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // 验证手机号格式
+        function validatePhone(phone) {
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            return phoneRegex.test(phone);
+        }
+
+        // 登录处理
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showToast('请填写完整的登录信息', 'warning');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showToast('请输入正确的邮箱格式', 'warning');
+                return;
+            }
+            
+            // 获取存储的用户信息
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                // 登录成功
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                showToast('登录成功！', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'mobile-questionnaire.html';
+                }, 1000);
+            } else {
+                showToast('邮箱或密码错误', 'error');
+            }
+        });
+
+        // 注册处理
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            
+            // 验证输入
+            if (!name || !phone || !email || !password || !confirmPassword) {
+                showToast('请填写完整的注册信息', 'warning');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showToast('请输入正确的邮箱格式', 'warning');
+                return;
+            }
+            
+            if (!validatePhone(phone)) {
+                showToast('请输入正确的手机号格式', 'warning');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showToast('密码长度至少6位', 'warning');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showToast('两次输入的密码不一致', 'warning');
+                return;
+            }
+            
+            // 检查邮箱是否已存在
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            if (users.find(u => u.email === email)) {
+                showToast('该邮箱已被注册', 'warning');
+                return;
+            }
+            
+            // 检查手机号是否已存在
+            if (users.find(u => u.phone === phone)) {
+                showToast('该手机号已被注册', 'warning');
+                return;
+            }
+            
+            // 创建新用户
+            const newUser = {
+                id: Date.now().toString(),
+                name: name,
+                phone: phone,
+                email: email,
+                password: password,
+                registerDate: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+            
+            showToast('注册成功！', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'mobile-questionnaire.html';
+            }, 1000);
+        });
+
+        // 显示注册表单
+        function showRegisterForm() {
+            document.getElementById('registerModal').style.display = 'flex';
+        }
+
+        // 隐藏注册表单
+        function hideRegisterForm() {
+            document.getElementById('registerModal').style.display = 'none';
+            // 清空表单
+            document.getElementById('registerForm').reset();
+        }
+
+        // 游客登录
+        function guestLogin() {
+            const guestUser = {
+                id: 'guest_' + Date.now(),
+                name: '游客用户',
+                phone: '',
+                email: 'guest@example.com',
+                password: '',
+                isGuest: true,
+                registerDate: new Date().toISOString()
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(guestUser));
+            showToast('以游客身份登录成功！', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'mobile-questionnaire.html';
+            }, 1000);
+        }
+
+        // 检查是否已登录
+        window.addEventListener('load', function() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                // 已登录，直接跳转
+                window.location.href = 'mobile-questionnaire.html';
+            }
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('registerModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideRegisterForm();
+            }
+        });
+    </script>
+</body>
+</html>

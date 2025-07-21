@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>风险评估问卷 - 移动版</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .progress-container {
+            flex: 1;
+            margin: 0 16px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 5%;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 24px;
+            min-height: calc(100vh - 140px);
+        }
+
+        /* Question Card */
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .question-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .question-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: white;
+            font-size: 24px;
+        }
+
+        .question-category {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            line-height: 1.4;
+        }
+
+        /* Options */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-button {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px 18px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 15px;
+            line-height: 1.4;
+            color: #374151;
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-height: 56px;
+        }
+
+        .option-button:hover {
+            border-color: #667eea;
+            background: #f8fafc;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+        .option-button.selected {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+        }
+
+        .option-radio {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            margin-right: 12px;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .option-button:hover .option-radio {
+            border-color: #667eea;
+        }
+
+        .option-button.selected .option-radio {
+            border-color: white;
+            background: white;
+        }
+
+        .option-button.selected .option-radio::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+        }
+
+        .option-text {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        /* Navigation */
+        .navigation {
+            padding: 24px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-button {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .prev-button {
+            background: #f8fafc;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .prev-button:hover:not(:disabled) {
+            background: #f1f5f9;
+            border-color: #d1d5db;
+        }
+
+        .next-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .next-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .next-button:disabled {
+            background: #d1d5db;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Results Page */
+        .results-page {
+            padding: 24px;
+            text-align: center;
+        }
+
+        .results-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+
+
+        .score-label {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .score-level {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .radar-container {
+            margin: 32px 0;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .evaluation-text {
+            text-align: left;
+            line-height: 1.6;
+            color: #374151;
+            margin-bottom: 24px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .action-button {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .primary-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .secondary-button {
+            background: #f8fafc;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        /* Hidden elements */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-card {
+            animation: slideIn 0.5s ease;
+        }
+
+        /* Evaluation Page Styles */
+        .evaluation-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .eval-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .comprehensive-eval {
+            margin-bottom: 20px;
+        }
+
+        .risk-assessment-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .strategy-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .strategy-item {
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .eval-section {
+            margin-bottom: 12px;
+        }
+
+        .eval-section h4, .eval-section h5 {
+            margin: 0 0 6px 0;
+            font-size: 0.9em;
+        }
+
+        .eval-section p {
+            margin: 0;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .level-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            color: white;
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .risk-assessment-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 16px;
+            }
+
+            .question-card {
+                padding: 24px 20px;
+            }
+
+            .question-title {
+                font-size: 18px;
+            }
+
+            .option-button {
+                padding: 16px;
+                font-size: 15px;
+            }
+
+            .navigation {
+                padding: 16px;
+            }
+
+            .eval-card {
+                margin-bottom: 12px;
+            }
+
+            .strategy-item {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-title">风险评估</div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">1/20</div>
+                </div>
+                <i class="fas fa-chart-line" style="color: #667eea; font-size: 20px;"></i>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Question Section -->
+            <div id="question-section">
+                <div class="question-card">
+                    <div class="question-header">
+                        <div class="question-icon">
+                            <i id="question-icon" class="fas fa-wallet"></i>
+                        </div>
+                        <div class="question-category" id="question-category">风险承受能力</div>
+                        <div class="question-title" id="question-title">您的可投资资产规模是多少？</div>
+                    </div>
+                    
+                    <div class="options-container" id="options-container">
+                        <!-- Options will be dynamically generated -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="results-page hidden">
+                <div class="results-card">
+
+                                                          
+                    <div class="evaluation-text" id="evaluation-content">
+                        <!-- Evaluation content will be generated -->
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-button primary-button" id="download-btn">
+                            <i class="fas fa-download"></i>
+                            下载报告
+                        </button>
+                        <button class="action-button secondary-button" id="restart-btn">
+                            <i class="fas fa-redo"></i>
+                            重新测试
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation" id="navigation">
+            <div class="nav-buttons">
+                <button class="nav-button prev-button" id="prev-btn" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                    上一题
+                </button>
+                <button class="nav-button next-button" id="next-btn" disabled>
+                    下一题
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js for radar chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- XLSX library for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="mobile-app.js"></script>
+    <script>
+        // Mobile-specific initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            // Add mobile-specific event listeners
+            document.addEventListener('touchstart', function() {}, {passive: true});
+            
+            // Prevent zoom on double tap
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function (event) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+            
+            // Check if questionnaire data is loaded
+            if (typeof questionnaire !== 'undefined') {
+                console.log('Questionnaire data loaded');
+            } else {
+                console.error('Questionnaire data not loaded');
+            }
+            
+            // Initialize the questionnaire
+            if (typeof init === 'function') {
+                console.log('Calling init function');
+                try {
+                    init();
+                    console.log('Init function called successfully');
+                } catch (error) {
+                    console.error('Error calling init:', error);
+                }
+            } else {
+                console.error('Init function not found');
+                
+                // Manual initialization as fallback
+                if (typeof questionnaire !== 'undefined') {
+                    console.log('Attempting manual initialization');
+                    const allQuestions = [...questionnaire.ability, ...questionnaire.attitude];
+                    const firstQuestion = allQuestions[0];
+                    
+                    // Update question content
+                    document.getElementById('question-title').textContent = firstQuestion.title;
+                    document.getElementById('question-category').textContent = firstQuestion.category;
+                    
+                    // Generate options
+                    const optionsContainer = document.getElementById('options-container');
+                    optionsContainer.innerHTML = '';
+                    
+                    firstQuestion.options.forEach((option, index) => {
+                        const button = document.createElement('button');
+                        button.className = 'option-button';
+                        button.innerHTML = `
+                            <div class="option-radio"></div>
+                            <div class="option-text">${option.text}</div>
+                        `;
+                        
+                        button.addEventListener('click', function() {
+                            document.querySelectorAll('.option-button').forEach(btn => {
+                                btn.classList.remove('selected');
+                            });
+                            this.classList.add('selected');
+                            console.log('Selected option:', option.text);
+                        });
+                        
+                        optionsContainer.appendChild(button);
+                    });
+                    
+                    console.log('Manual initialization completed');
+                }
+            }
+            
+            // Add event listeners for result page buttons
+            document.getElementById('download-btn').addEventListener('click', function() {
+                if (typeof downloadExcel === 'function') {
+                    downloadExcel();
+                } else {
+                    alert('报告下载功能正在开发中，请稍后再试。');
+                }
+            });
+            
+            document.getElementById('restart-btn').addEventListener('click', function() {
+                if (typeof restart === 'function') {
+                    restart();
+                } else {
+                    // Manual restart
+                    location.reload();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
